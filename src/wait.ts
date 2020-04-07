@@ -9,15 +9,18 @@ export class Waiter implements Wait {
   private readonly getRun: () => Promise<Run>;
   private readonly pollIntervalSeconds: number;
   private readonly continueAfterSeconds: number | undefined;
+  private readonly failAfterSeconds: number | undefined;
   constructor(
     getRun: () => Promise<Run>,
     pollIntervalSeconds: number,
     continueAfterSeconds: number | undefined,
+    failAfterSeconds: number | undefined,
     info: (msg: string) => void
   ) {
     this.getRun = getRun;
     this.pollIntervalSeconds = pollIntervalSeconds;
     this.continueAfterSeconds = continueAfterSeconds;
+    this.failAfterSeconds = failAfterSeconds;
     this.info = info;
   }
 
@@ -28,6 +31,13 @@ export class Waiter implements Wait {
     ) {
       this.info(`🤙Exceeded wait seconds. Continuing...`);
       return secondsSoFar || 0;
+    }
+    if (
+      this.failAfterSeconds &&
+      (secondsSoFar || 0) >= this.failAfterSeconds
+    ) {
+      this.info(`🤙Exceeded wait failing seconds. Failing...`);
+      throw "Timeout"
     }
     const run = await this.getRun();
     if (run.status === "completed") {

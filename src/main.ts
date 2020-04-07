@@ -14,7 +14,8 @@ async function run() {
       workflowName,
       runId,
       continueAfterSeconds,
-      pollIntervalSeconds
+      pollIntervalSeconds,
+      failAfterSeconds
     } = parseInput(env);
     const github = new OctokitGitHub(githubToken);
     const workflows = await github.workflows(owner, repo);
@@ -31,6 +32,7 @@ async function run() {
           () => github.run(owner, repo, previousRun.id),
           pollIntervalSeconds,
           continueAfterSeconds,
+          failAfterSeconds,
           info
         ).wait();
       }
