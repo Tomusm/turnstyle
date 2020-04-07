@@ -45,9 +45,11 @@ export class Waiter implements Wait {
       return secondsSoFar || 0;
     }
     this.info(`✋Awaiting run ${run.html_url}...`);
+    var waitDuration = (this.continueAfterSeconds && this.continueAfterSeconds < this.pollIntervalSeconds) ? this.continueAfterSeconds : this.pollIntervalSeconds;
+    waitDuration = (this.failAfterSeconds && this.failAfterSeconds < this.pollIntervalSeconds) ? this.failAfterSeconds : waitDuration;
     await new Promise(resolve =>
-      setTimeout(resolve, this.pollIntervalSeconds * 1000)
+      setTimeout(resolve, waitDuration * 1000)
     );
-    return this.wait((secondsSoFar || 0) + this.pollIntervalSeconds);
+    return this.wait((secondsSoFar || 0) + waitDuration);
   };
 }
